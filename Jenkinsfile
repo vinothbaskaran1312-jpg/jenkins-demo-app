@@ -2,7 +2,7 @@ pipeline {
     agent { label 'node2' }
     
     environment {
-        DOCKER_IMAGE = 'vinothbaskaran1312/jenkins-demo-app'
+        DOCKER_IMAGE = 'vinothbaskaran1985/jenkins-demo-app'
         DOCKER_TAG = "${BUILD_NUMBER}"
     }
     
