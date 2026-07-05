@@ -1,25 +1,21 @@
-cat > Jenkinsfile << 'DONE'
 pipeline {
     agent { label 'node2' }
     
     environment {
         DOCKER_IMAGE = 'vinothbaskaran1312/jenkins-demo-app'
         DOCKER_TAG = "${BUILD_NUMBER}"
-        MANIFESTS_REPO = 'https://github.com/vinothbaskaran1312-jpg/jenkins-demo-manifests.git'
     }
     
     stages {
         stage('Checkout') {
             steps {
-                echo "Checking out code from GitHub..."
+                echo "Checking out code..."
                 checkout scm
-                echo "Commit: ${env.GIT_COMMIT}"
             }
         }
         
         stage('Build Docker Image') {
             steps {
-                echo "Building Docker image: ${DOCKER_IMAGE}:${DOCKER_TAG}"
                 sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
                 sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest"
             }
@@ -74,4 +70,3 @@ pipeline {
         }
     }
 }
-DONE
