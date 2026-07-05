@@ -1,4 +1,4 @@
-cat > Jenkinsfile << 'EOF'
+cat > Jenkinsfile << 'DONE'
 pipeline {
     agent { label 'node2' }
     
@@ -74,4 +74,4 @@ pipeline {
         }
     }
 }
-EOF
+DONE
