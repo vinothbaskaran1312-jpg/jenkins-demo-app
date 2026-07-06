@@ -36,22 +36,41 @@ pipeline {
             }
         }
 
-        stage('Trivy Security Scan') {
-            steps {
-                echo "Scanning Docker image for vulnerabilities..."
-                sh """
-                    # Install Trivy if not present
-                    if ! command -v trivy &> /dev/null; then
-                        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin
-                    fi
-                    # Scan image - show CRITICAL and HIGH only
-                    trivy image --severity HIGH,CRITICAL \
-                        --exit-code 0 \
-                        --no-progress \
-                        ${DOCKER_IMAGE}:${DOCKER_TAG}
-                """
-            }
-        }
+       stage('Trivy Security Scan') {
+    steps {
+        echo "Scanning Docker image for vulnerabilities..."
+        sh """
+            # Create bin directory for jenkins user if not exists
+            mkdir -p /home/jenkins/bin
+
+            # Install Trivy if not already installed
+            if ! command -v /home/jenkins/bin/trivy &> /dev/null; then
+                echo "Installing Trivy..."
+                curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /home/jenkins/bin
+            else
+                echo "Trivy already installed, skipping download..."
+            fi
+
+            # Run the scan
+            /home/jenkins/bin/trivy image \
+                --severity HIGH,CRITICAL \
+                --exit-code 0 \
+                --no-progress \
+                ${DOCKER_IMAGE}:${DOCKER_TAG}
+        """
+    }
+}
+Key changes:
+
+Uses /home/jenkins/bin/trivy (full path, no sudo needed)
+Checks if already installed → skips download on subsequent builds (faster!)
+--exit-code 0 means pipeline continues even if vulnerabilities found (we report but don't fail)
+
+Save, then push:
+bashgit add Jenkinsfile
+git commit -m "Fix Trivy install - use jenkins user home directory"
+git push origin main
+Then Build Now in Jenkins — share the Console Output for the Trivy stage! 🚀
 
         stage('Push to DockerHub') {
             steps {
