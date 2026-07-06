@@ -36,7 +36,7 @@ pipeline {
             }
         }
 
-       stage('Trivy Security Scan') {
+      stage('Trivy Security Scan') {
     steps {
         echo "Scanning Docker image for vulnerabilities..."
         sh """
@@ -60,18 +60,6 @@ pipeline {
         """
     }
 }
-Key changes:
-
-Uses /home/jenkins/bin/trivy (full path, no sudo needed)
-Checks if already installed → skips download on subsequent builds (faster!)
---exit-code 0 means pipeline continues even if vulnerabilities found (we report but don't fail)
-
-Save, then push:
-bashgit add Jenkinsfile
-git commit -m "Fix Trivy install - use jenkins user home directory"
-git push origin main
-Then Build Now in Jenkins — share the Console Output for the Trivy stage! 🚀
-
         stage('Push to DockerHub') {
             steps {
                 withCredentials([usernamePassword(
